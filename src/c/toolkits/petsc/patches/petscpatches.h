@@ -13,26 +13,28 @@
 
 #if _HAVE_CODIPACK_
 #include </home/msagebaum/Kaiserslautern/Programms/adjoint_petsc/include/adjoint_petsc/vec.h>
+#include </home/msagebaum/Kaiserslautern/Programms/adjoint_petsc/include/adjoint_petsc/mat.h>
 #endif
 
 class Parameters;
 
 using PVec = adjoint_petsc::ADVec;
+using PMat = adjoint_petsc::ADMat;
 
 PVec NewVec(int size,ISSM_MPI_Comm comm,bool fromlocalsize=false);
-Mat NewMat(int M,int N,ISSM_MPI_Comm comm);
-Mat NewMat(int M,int N,double sparsity,ISSM_MPI_Comm comm);
-Mat NewMat(int M,int N,int connectivity,int numberofdofspernode, ISSM_MPI_Comm comm);
+PMat NewMat(int M,int N,ISSM_MPI_Comm comm);
+PMat NewMat(int M,int N,IssmPDouble sparsity,ISSM_MPI_Comm comm);
+PMat NewMat(int M,int N,int connectivity,int numberofdofspernode, ISSM_MPI_Comm comm);
 
 int VecToMPISerial(IssmDouble** pgathered_vector, PVec vector,ISSM_MPI_Comm comm,bool broadcast=true);
-void MatFree(Mat* pmat);
+void MatFree(PMat* pmat);
 void ISFree(IS* pis);
 void VecFree(PVec* pvec);
 void KSPFree(KSP* pksp);
-int MatPartition(Mat* poutmatrix,Mat matrixA,double* row_partition_vector,int row_partition_vector_size, double* col_partition_vector,int col_partition_vector_size);
+int MatPartition(PMat* poutmatrix,PMat matrixA,IssmDouble* row_partition_vector,int row_partition_vector_size, IssmDouble* col_partition_vector,int col_partition_vector_size);
 void PetscOptionsDetermineSolverType(int* psolver_type);
-void MatToMPISerial(double** poutmatrix,Mat matrix,ISSM_MPI_Comm comm,bool broadcast=true);
-Vec  SerialToVec(double* vector,int vector_size);
+void MatToMPISerial(IssmDouble** poutmatrix,PMat matrix,ISSM_MPI_Comm comm,bool broadcast=true);
+PVec  SerialToVec(IssmDouble* vector,int vector_size);
 InsertMode ISSMToPetscInsertMode(InsMode mode);
 NormType ISSMToPetscNormMode(NormMode mode);
 MatType ISSMToPetscMatrixType(MatrixType type);

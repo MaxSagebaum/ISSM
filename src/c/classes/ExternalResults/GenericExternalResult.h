@@ -755,43 +755,43 @@ template <> inline void GenericExternalResult<IssmComplex*>::WriteData(FILE* fid
 		return new GenericExternalResult<Vector<IssmPDouble>*>(this->id,StringToEnumx(this->result_name),this->value,this->step,this->time);
 	} /*}}}*/
 #if defined(_HAVE_AD_) && !defined(_WRAPPERS_)  //We hook off this specific specialization when not running ADOLC, otherwise we get a redeclaration with the next specialization.
-	// template <> inline void GenericExternalResult<Vector<IssmPDouble>*>::WriteData(FILE* fid,bool io_gather){ /*{{{*/
+	template <> inline void GenericExternalResult<Vector<IssmPDouble>*>::WriteData(FILE* fid,bool io_gather){ /*{{{*/
 
-	// 	char *name   = NULL;
-	// 	int   length,rows,cols=1;
+		char *name   = NULL;
+		int   length,rows,cols=1;
 
-	// 	if(!io_gather){
-	// 		_error_("not supported yet");
-	// 	}
+		if(!io_gather){
+			_error_("not supported yet");
+		}
 
-	// 	/*Serialize vector on cpu0*/
-	// 	IssmPDouble* serialvalues = this->value->ToMPISerial0();
+		/*Serialize vector on cpu0*/
+		IssmPDouble* serialvalues = this->value->ToMPISerial0();
 
-	// 	if(IssmComm::GetRank()==0){
-	// 		this->value->GetSize(&rows);
+		if(IssmComm::GetRank()==0){
+			this->value->GetSize(&rows);
 
-	// 		/*First write name: */
-	// 		length=(strlen(this->result_name)+1)*sizeof(char);
-	// 		fwrite(&length,sizeof(int),1,fid);
-	// 		fwrite(this->result_name,length,1,fid);
+			/*First write name: */
+			length=(strlen(this->result_name)+1)*sizeof(char);
+			fwrite(&length,sizeof(int),1,fid);
+			fwrite(this->result_name,length,1,fid);
 
-	// 		/*Now write time and step: */
-	// 		IssmPDouble passiveDouble=reCast<IssmPDouble>(time);
-	// 		fwrite(&passiveDouble,sizeof(IssmPDouble),1,fid);
-	// 		fwrite(&step,sizeof(int),1,fid);
+			/*Now write time and step: */
+			IssmPDouble passiveDouble=reCast<IssmPDouble>(time);
+			fwrite(&passiveDouble,sizeof(IssmPDouble),1,fid);
+			fwrite(&step,sizeof(int),1,fid);
 
-	// 		/*writing a IssmDouble array, type is 3:*/
-	// 		int type=3;
-	// 		fwrite(&type,sizeof(int),1,fid);
-	// 		fwrite(&rows,sizeof(int),1,fid);
-	// 		fwrite(&cols,sizeof(int),1,fid);
-	// 		fwrite(serialvalues,cols*rows*sizeof(IssmPDouble),1,fid);
-	// 	}
+			/*writing a IssmDouble array, type is 3:*/
+			int type=3;
+			fwrite(&type,sizeof(int),1,fid);
+			fwrite(&rows,sizeof(int),1,fid);
+			fwrite(&cols,sizeof(int),1,fid);
+			fwrite(serialvalues,cols*rows*sizeof(IssmPDouble),1,fid);
+		}
 
-	// 	/*Clean up*/
-	// 	xDelete<IssmPDouble>(serialvalues);
+		/*Clean up*/
+		xDelete<IssmPDouble>(serialvalues);
 
-	// }
+	}
 	/*}}}*/
 template <> inline GenericExternalResult<Vector<IssmDouble>*>::~GenericExternalResult(){ /*{{{*/
 	xDelete<char>(this->result_name);

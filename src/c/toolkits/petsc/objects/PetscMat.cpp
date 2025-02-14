@@ -17,10 +17,6 @@
 template<typename doubletype>
 PetscMat<doubletype>::PetscMat(){/*{{{*/
 	this->matrix=NULL;
-	#ifdef _HAVE_AD_
-	this->amatrix=NULL;
-	#endif
-
 }
 /*}}}*/
 template<typename doubletype>
@@ -222,3 +218,9 @@ void PetscMat<doubletype>::SetZero(void){/*{{{*/
 	MatZeroEntries(this->matrix);
 }
 /*}}}*/
+
+// Explicit instantiations.
+template class PetscMat<IssmDouble>;
+// #if _HAVE_CODIPACK_
+// template class PetscMat<IssmPDouble>;
+// #endif
