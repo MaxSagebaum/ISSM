@@ -17,12 +17,12 @@
 #include "../../../shared/io/Print/Print.h"
 #include "../../../shared/Numerics/recast.h"
 
-void	PetscSolve(PetscVec** puf, PetscMat* Kff, PetscVec* pf, PetscVec* uf0,PetscVec* df, Parameters* parameters){ /*{{{*/
+void	PetscSolve(PetscVec<IssmDouble>** puf, PetscMat<IssmDouble>* Kff, PetscVec<IssmDouble>* pf, PetscVec<IssmDouble>* uf0,PetscVec<IssmDouble>* df, Parameters* parameters) { /*{{{*/
 
-	PetscVec* uf=new PetscVec();
+	PetscVec<IssmDouble>* uf=new PetscVec<IssmDouble>();
 
-	Vec uf0_vector = NULL;
-	Vec df_vector  = NULL;
+	PVec uf0_vector = NULL;
+	PVec df_vector  = NULL;
 
 	if(uf0) uf0_vector = uf0->vector;
 	if(df)  df_vector  = df->vector;
@@ -33,16 +33,16 @@ void	PetscSolve(PetscVec** puf, PetscMat* Kff, PetscVec* pf, PetscVec* uf0,Petsc
 
 }
 /*}}}*/
-void	SolverxPetsc(Vec* puf, Mat Kff, Vec pf, Vec uf0,Vec df, Parameters* parameters){ /*{{{*/
+void	SolverxPetsc(PVec* puf, PMat Kff, PVec pf, PVec uf0,PVec df, Parameters* parameters){ /*{{{*/
 
 	/*Output: */
-	Vec        uf = NULL;
+	PVec        uf = NULL;
 
 	/*Intermediary: */
 	int        local_m,local_n,global_m,global_n;
 
 	/*Solver */
-	KSP        ksp              = NULL;
+	PKSP        ksp              = NULL;
 	PC         pc               = NULL;
 	int        iteration_number;
 	int        solver_type;
@@ -173,14 +173,14 @@ void	SolverxPetsc(Vec* puf, Mat Kff, Vec pf, Vec uf0,Vec df, Parameters* paramet
 	*puf=uf;
 } 
 /*}}}*/
-void DofTypesToIndexSet(IS* pisv, IS* pisp, Vec df,int typeenum){ /*{{{*/
+void DofTypesToIndexSet(IS* pisv, IS* pisp, PVec df,int typeenum){ /*{{{*/
 
 	/*output: */
 	IS          isv=NULL;
 	IS          isp=NULL;
 
 	int         start,end;
-	IssmDouble*     df_local=NULL;
+	PArray			df_local;
 	int         df_local_size;
 
 	int*     pressure_indices=NULL;

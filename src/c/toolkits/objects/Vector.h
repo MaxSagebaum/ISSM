@@ -86,7 +86,7 @@ class Vector{
 		}
 		/*}}}*/
 		#ifdef _HAVE_PETSC_
-		Vector(Vec petsc_vector){ /*{{{*/
+		Vector(PVec petsc_vector){ /*{{{*/
 
 			this->type=PetscVecType;
 			this->ivector=NULL;

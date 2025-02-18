@@ -14,12 +14,12 @@
 #include "./petscpatches.h"
 #include "../../mpi/issmmpi.h"
 
-Vec NewVec(int size,ISSM_MPI_Comm comm,bool fromlocalsize){
+PVec NewVec(int size,ISSM_MPI_Comm comm,bool fromlocalsize){
 
 	int local_size;
 
 	/*output: */
-	Vec vector=NULL;
+	PVec vector=NULL;
 
 	/*determine local size of vector: */
 	if(fromlocalsize){

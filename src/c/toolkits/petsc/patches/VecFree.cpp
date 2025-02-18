@@ -11,7 +11,9 @@
 /*Petsc includes: */
 #include <petscksp.h>
 
-void VecFree(Vec* pvec){
+#include "./petscpatches.h"
+
+void VecFree(PVec* pvec){
 
 	#if PETSC_VERSION_LT(3,2,0)
 	if(*pvec)VecDestroy(*pvec);
