@@ -20,7 +20,7 @@
 /*}}}*/
 
 #if _HAVE_CODIPACK_
-#include </home/msagebaum/Kaiserslautern/Programms/adjoint_petsc/include/adjoint_petsc/vec.h>
+#include <adjoint_petsc/vec.h>
 #endif
 
 template<typename doubletype>

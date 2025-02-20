@@ -73,7 +73,7 @@ void	SolverxPetsc(PVec* puf, PMat Kff, PVec pf, PVec uf0,PVec df, Parameters* pa
 	_assert_(Kff);
 	MatGetSize(Kff,&global_m,&global_n); _assert_(global_m==global_n);
 	if(!global_n){
-		*puf=NewVec(0,IssmComm::GetComm()); return;
+		*puf=NewVec<PVec>(0,IssmComm::GetComm()); return;
 	}
 
 	/*Initial guess */
@@ -94,7 +94,7 @@ void	SolverxPetsc(PVec* puf, PMat Kff, PVec pf, PVec uf0,PVec df, Parameters* pa
 		VecDuplicate(uf0,&uf); VecCopy(uf0,uf);
 	}
 	else{
-		MatGetLocalSize(Kff,&local_m,&local_n);uf=NewVec(local_n,IssmComm::GetComm(),fromlocalsize);
+		MatGetLocalSize(Kff,&local_m,&local_n);uf=NewVec<PVec>(local_n,IssmComm::GetComm(),fromlocalsize);
 	}
 
 	/*Process petsc options to see if we are using special types of external solvers*/

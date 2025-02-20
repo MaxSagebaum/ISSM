@@ -27,7 +27,7 @@ PetscVec<doubletype>::PetscVec(){/*{{{*/
 template<typename doubletype>
 PetscVec<doubletype>::PetscVec(int M,bool fromlocalsize){/*{{{*/
 
-	this->vector=NewVec(M,IssmComm::GetComm(),fromlocalsize);
+	this->vector=NewVec<PVec>(M,IssmComm::GetComm(),fromlocalsize);
 }
 /*}}}*/
 template<typename doubletype>
@@ -44,7 +44,7 @@ template<typename doubletype>
 PetscVec<doubletype>::PetscVec(PVec petsc_vec){/*{{{*/
 
 	if(petsc_vec==NULL){
-		this->vector=NewVec(0,IssmComm::GetComm());
+		this->vector=NewVec<PVec>(0,IssmComm::GetComm());
 	}
 	else{
 		/*copy vector*/
@@ -61,7 +61,7 @@ PetscVec<doubletype>::PetscVec(doubletype* serial_vec,int M){/*{{{*/
 	if(M)idxm=xNew<int>(M);
 	for(int i=0;i<M;i++) idxm[i]=i;
 
-	this->vector=NewVec(M,IssmComm::GetComm());
+	this->vector=NewVec<PVec>(M,IssmComm::GetComm());
 	VecSetValues(this->vector,M,idxm,serial_vec,INSERT_VALUES);
 	VecAssemblyBegin(this->vector);
 	VecAssemblyEnd(this->vector);
@@ -311,6 +311,6 @@ void PetscVec<doubletype>::PointwiseMult(PetscVec* x,PetscVec* y){/*{{{*/
 
 // Explicit instantiations.
 template class PetscVec<IssmDouble>;
-// #if _HAVE_CODIPACK_
-// template class PetscVec<IssmPDouble>;
-// #endif
+#if _HAVE_CODIPACK_
+template class PetscVec<IssmPDouble>;
+#endif
