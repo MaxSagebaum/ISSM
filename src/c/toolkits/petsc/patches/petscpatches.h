@@ -19,10 +19,17 @@
 
 class Parameters;
 
+#if _HAVE_CODIPACK_
 using PVec = adjoint_petsc::ADVec;
 using PMat = adjoint_petsc::ADMat;
 using PKSP = adjoint_petsc::ADKSP;
 using PArray = adjoint_petsc::WrapperArray;
+#else
+using PVec = Vec;
+using PMat = Mat;
+using PKSP = KSP;
+using PArray = IssmDouble*;
+#endif
 
 template<typename vectype> vectype NewVec(int size,ISSM_MPI_Comm comm,bool fromlocalsize=false);
 PMat NewMat(int M,int N,ISSM_MPI_Comm comm);

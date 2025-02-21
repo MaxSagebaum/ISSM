@@ -82,7 +82,9 @@ int VecToMPISerial(doubletype** pgathered_vector, vectype vector,ISSM_MPI_Comm c
 
 	if (my_rank==0){ 
 		//Still have the local_vector on node 0 to take care of.
-		if (range) memcpy(gathered_vector+lower_row,local_vector,range*sizeof(double)); // TODO: Change for CoDiPack.
+		if (range) {
+			xMemCpy<doubletype>(&gathered_vector[lower_row], local_vector, range);
+		}
 	}
 
 	if(broadcast){

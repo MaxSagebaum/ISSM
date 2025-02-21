@@ -29,7 +29,7 @@ class PetscMat{
 #if _HAVE_CODIPACK_
 		using PMat = typename std::conditional<std::is_same<doubletype, IssmDouble>::value, adjoint_petsc::ADMat, Mat>::type;
 #else
-		using PMat = Vec;
+		using PMat = Mat;
 #endif
 
 		PMat matrix;
