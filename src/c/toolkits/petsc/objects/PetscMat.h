@@ -19,6 +19,7 @@
 #include "../../../shared/Numerics/types.h"
 
 /*}}}*/
+template<typename doubletype>
 class PetscVec;
 
 class PetscMat{
@@ -27,15 +28,15 @@ class PetscMat{
 		Mat matrix;
 
 		#ifdef _HAVE_AD_
-		IssmDouble* amatrix;
+		Mat amatrix;
 		#endif
 
 		/*PetscMat constructors, destructors*/
 		PetscMat();
 		PetscMat(int M,int N);
-		PetscMat(int M,int N,IssmDouble sparsity);
+		PetscMat(int M,int N,IssmPDouble sparsity);
 		PetscMat(int m,int n,int M,int N,int* d_nnz,int* o_nnz);
-		PetscMat(IssmDouble* serial_mat,int M,int N,IssmDouble sparsity);
+		PetscMat(IssmPDouble* serial_mat,int M,int N,IssmPDouble sparsity);
 		PetscMat(int M,int N,int connectivity,int numberofdofspernode);
 		~PetscMat();
 
@@ -46,7 +47,7 @@ class PetscMat{
 		IssmDouble Norm(NormMode norm_type);
 		void GetSize(int* pM,int* pN);
 		void GetLocalSize(int* pM,int* pN);
-		void MatMult(PetscVec* X,PetscVec* AX);
+		void MatMult(PetscVec<IssmDouble>* X,PetscVec<IssmDouble>* AX);
 		PetscMat* Duplicate(void);
 		IssmDouble* ToMPISerial(void);
 		IssmDouble* ToMPISerial0(void);
