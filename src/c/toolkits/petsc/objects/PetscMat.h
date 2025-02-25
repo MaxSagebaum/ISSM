@@ -46,6 +46,7 @@ class PetscMat{
 		/*PetscMat specific routines*/
 		void AllocationInfo(void);
 		void Echo(void);
+		void EchoDebug(std::string message);
 		void Assemble(void);
 		doubletype Norm(NormMode norm_type);
 		void GetSize(int* pM,int* pN);

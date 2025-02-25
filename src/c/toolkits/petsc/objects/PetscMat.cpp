@@ -13,6 +13,10 @@
 #include "../petscincludes.h"
 #include "../../../shared/shared.h"
 
+#ifdef _HAVE_CODIPACK_
+#include "../../codipack/CoDiPackDebug.h"
+#endif
+
 /*PetscMat constructors and destructor*/
 template<typename doubletype>
 PetscMat<doubletype>::PetscMat(){/*{{{*/
@@ -120,6 +124,15 @@ template<typename doubletype>
 void PetscMat<doubletype>::Echo(void){/*{{{*/
 
 	MatView(this->matrix,PETSC_VIEWER_STDOUT_WORLD);
+}
+/*}}}*/
+template<typename doubletype>
+void PetscMat<doubletype>::EchoDebug(std::string message){/*{{{*/
+#if defined(_HAVE_CODIPACK_) & defined(_HAVE_ADJOINTPETSC_)
+	if (std::is_same<doubletype, IssmDouble>::value && CoDiIsDebugOutput()) {
+		adjoint_petsc::ADMatDebugOutput(this->matrix, message, CoDiGetUniqueID());
+	}
+#endif
 }
 /*}}}*/
 template<typename doubletype>

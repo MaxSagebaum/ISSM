@@ -17,6 +17,10 @@
 #include "../../shared/Enum/Enum.h"
 #include "../petsc/petscincludes.h"
 #include "../issm/issmtoolkit.h"
+
+#ifdef _HAVE_CODIPACK_
+#include "../codipack/CoDiPackDebug.h"
+#endif
 /*}}}*/
 
 enum matrixtype { PetscMatType, IssmMatType };
@@ -170,6 +174,15 @@ class Matrix{
 
 		}
 		/*}}}*/
+		void EchoDebug(std::string message){_assert_(this);/*{{{*/
+
+			if(type==PetscMatType){
+#ifdef _HAVE_PETSC_
+				this->pmatrix->EchoDebug(message);
+#endif
+			}
+			else this->imatrix->EchoDebug(message);
+		}
 		void AllocationInfo(void){/*{{{*/
 			_assert_(this);
 			if(type==PetscMatType){

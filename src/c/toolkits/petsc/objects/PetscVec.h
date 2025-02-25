@@ -45,6 +45,7 @@ class PetscVec {
 
 		/*PetscVec specific routines*/
 		void        Echo(void);
+		void        EchoDebug(std::string message);
 		void        Assemble(void);
 		void        SetValues(int ssize, int* list, doubletype* values, InsMode mode);
 		void        SetValue(int dof, doubletype value, InsMode  mode);

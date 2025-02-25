@@ -7,5 +7,6 @@
 
 #include "./CoDiPackCommon.hpp"
 #include "./CoDiPackGlobal.h"
+#include "./CoDiPackDebug.h"
 
 #endif

@@ -15,6 +15,10 @@
 #include "../petscincludes.h"
 #include "../../../shared/shared.h"
 
+#ifdef _HAVE_CODIPACK_
+#include "../../codipack/CoDiPackDebug.h"
+#endif
+
 #include "PetscVec.h"
 /*}}}*/
 
@@ -81,18 +85,25 @@ void PetscVec<doubletype>::Echo(void){/*{{{*/
 
 	_assert_(this->vector);
 	VecView(this->vector,PETSC_VIEWER_STDOUT_WORLD);
-	// TODO: Maybe add AD view?
 }
 /*}}}*/
+
+template<typename doubletype>
+void PetscVec<doubletype>::EchoDebug(std::string message){/*{{{*/
+#if defined(_HAVE_CODIPACK_) & defined(_HAVE_ADJOINTPETSC_)
+	if (std::is_same<doubletype, IssmDouble>::value && CoDiIsDebugOutput()) {
+		adjoint_petsc::ADVecDebugOutput(this->vector, message, CoDiGetUniqueID());
+	}
+#endif
+}
+/*}}}*/
+
 template<typename doubletype>
 void PetscVec<doubletype>::Assemble(void){/*{{{*/
 
 	_assert_(this->vector);
 	VecAssemblyBegin(this->vector);
 	VecAssemblyEnd(this->vector);
-
-	// Just compresses the vector. Statements have already been recorded in the SetValue* functions.
-
 }
 /*}}}*/
 template<typename doubletype>

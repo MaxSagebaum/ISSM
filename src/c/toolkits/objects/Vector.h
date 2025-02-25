@@ -17,6 +17,10 @@
 #include "../../shared/Enum/Enum.h"
 #include "../petsc/petscincludes.h"
 #include "../issm/issmtoolkit.h"
+
+#ifdef _HAVE_CODIPACK_
+#include "../codipack/CoDiPackDebug.h"
+#endif
 /*}}}*/
 
 enum vectortype { PetscVecType, IssmVecType };
@@ -137,6 +141,16 @@ class Vector{
 			}
 			else this->ivector->Echo();
 
+		}
+		/*}}}*/
+		void EchoDebug(std::string message){_assert_(this);/*{{{*/
+
+			if(type==PetscVecType){
+#ifdef _HAVE_PETSC_
+				this->pvector->EchoDebug(message);
+#endif
+			}
+			else this->ivector->EchoDebug(message);
 		}
 		/*}}}*/
 		void Assemble(void){_assert_(this);/*{{{*/
