@@ -163,7 +163,12 @@ void PetscMat<doubletype>::MatMult(PetscVec<doubletype>* X,PetscVec<doubletype>*
 	_assert_(this->matrix);
 	_assert_(X->vector);
 
-	::MatMult(this->matrix, X->vector, AX->vector);
+  using ::MatMult;
+#if _HAVE_CODIPACK_
+  using ::adjoint_petsc::MatMult;
+#endif
+
+	MatMult(this->matrix, X->vector, AX->vector);
 }/*}}}*/
 template<typename doubletype>
 PetscMat<doubletype>* PetscMat<doubletype>::Duplicate(void){/*{{{*/

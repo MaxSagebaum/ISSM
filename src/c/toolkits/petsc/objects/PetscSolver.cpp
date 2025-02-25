@@ -200,7 +200,7 @@ void DofTypesToIndexSet(IS* pisv, IS* pisp, PVec df,int typeenum){ /*{{{*/
 		pressure_num=0;
 		velocity_num=0;
 		for(int i=0;i<df_local_size;i++){
-			if (reCast<int>(df_local[i])==PressureEnum)pressure_num++;
+			if (reCast<int, IssmDouble>(df_local[i])==PressureEnum)pressure_num++;
 			else velocity_num++;
 		}
 
@@ -211,11 +211,11 @@ void DofTypesToIndexSet(IS* pisv, IS* pisp, PVec df,int typeenum){ /*{{{*/
 		pressure_count=0;
 		velocity_count=0;
 		for(int i=0;i<df_local_size;i++){
-			if(reCast<int>(df_local[i])==PressureEnum){
+			if(reCast<int, IssmDouble>(df_local[i])==PressureEnum){
 				pressure_indices[pressure_count]=start+i;
 				pressure_count++;
 			}
-			if(reCast<int>(df_local[i])==VelocityEnum){
+			if(reCast<int, IssmDouble>(df_local[i])==VelocityEnum){
 				velocity_indices[velocity_count]=start+i;
 				velocity_count++;
 			}

@@ -2592,9 +2592,6 @@ AC_DEFUN([ISSM_OPTIONS],[
 	if test "x${HAVE_ADOLC}" == "xyes" && test "x${HAVE_PETSC}" == "xyes"; then
 		AC_MSG_ERROR([cannot compile ISSM with both PETSc and ADOL-C]);
 	fi
-	  if test "x${HAVE_PETSC}" == "xyes" && test "x${HAVE_CODIPACK}" == "xyes"; then
-		AC_MSG_ERROR([cannot compile ISSM with both PETSc and CoDiPack, you probably forgot to remove --with-petsc-dir]);
-	fi
 	if test "x${HAVE_ADOLC}" == "xyes" && test "x${HAVE_CODIPACK}" == "xyes"; then
 		AC_MSG_ERROR([cannot compile ISSM with both ADOL-C and CoDiPack]);
 	fi
