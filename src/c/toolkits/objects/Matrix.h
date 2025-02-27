@@ -205,10 +205,13 @@ class Matrix{
 			else{
 				this->imatrix->Assemble();
 			}
+
+			EchoDebug("mat assemble out");
 		}
 		/*}}}*/
 		IssmDouble Norm(NormMode norm_type){/*{{{*/
 
+			EchoDebug("mat norm in");
 			IssmDouble norm=0;
 
 			if(type==PetscMatType){
@@ -219,6 +222,8 @@ class Matrix{
 			else{
 				norm=this->imatrix->Norm(norm_type);
 			}
+
+			ArrayDebugOutput("mat norm out", 1, &norm);
 
 			return norm;
 		}
@@ -251,6 +256,9 @@ class Matrix{
 		/*}}}*/
 		void MatMult(Vector<doubletype>* X,Vector<doubletype>* AX){/*{{{*/
 
+			X->EchoDebug("mat mult X in");
+			EchoDebug("mat mult A in");
+
 			if(type==PetscMatType){
 				#ifdef _HAVE_PETSC_
 				this->pmatrix->MatMult(X->pvector,AX->pvector);
@@ -259,6 +267,8 @@ class Matrix{
 			else{
 				this->imatrix->MatMult(X->ivector,AX->ivector);
 			}
+
+			AX->EchoDebug("mat mult AX out");
 
 		}
 		/*}}}*/
@@ -311,6 +321,8 @@ class Matrix{
 		}
 		/*}}}*/
 		void SetValues(int m,int* idxm,int n,int* idxn,IssmDouble* values,InsMode mode){/*{{{*/
+
+			ArrayDebugOutput("mat setValues in", m * n, values);
 
 			if(type==PetscMatType){
 				#ifdef _HAVE_PETSC_

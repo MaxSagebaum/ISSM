@@ -69,6 +69,7 @@ class Vector{
 		/*}}}*/
 		Vector(doubletype* serial_vec,int M){ /*{{{*/
 
+			ArrayDebugOutput("constructor from serial", M, serial_vec);
 			InitCheckAndSetType();
 
 			if(type==PetscVecType){
@@ -161,10 +162,12 @@ class Vector{
 				#endif
 			}
 			else this->ivector->Assemble();
-
+			EchoDebug("assemble");
 		}
 		/*}}}*/
 		void SetValues(int ssize, int* list, doubletype* values, InsMode mode){ _assert_(this);/*{{{*/
+			ArrayDebugOutput("setValues in", ssize, values);
+
 			if(type==PetscVecType){
 				#ifdef _HAVE_PETSC_
 				this->pvector->SetValues(ssize,list,values,mode);
@@ -187,12 +190,15 @@ class Vector{
 		/*}}}*/
 		void GetValue(doubletype* pvalue,int dof){_assert_(this);/*{{{*/
 
+			EchoDebug("GetValue");
 			if(type==PetscVecType){
 				#ifdef _HAVE_PETSC_
 				this->pvector->GetValue(pvalue,dof);
 				#endif
 			}
 			else this->ivector->GetValue(pvalue,dof);
+
+			ArrayDebugOutput("getValue out", 1, pvalue);
 
 		}
 		/*}}}*/
@@ -232,12 +238,17 @@ class Vector{
 		/*}}}*/
 		void GetLocalVector(doubletype** pvector,int** pindices){_assert_(this);/*{{{*/
 
+			EchoDebug("GetLocalVector");
 			if(type==PetscVecType){
 				#ifdef _HAVE_PETSC_
 				this->pvector->GetLocalVector(pvector,pindices);
 				#endif
 			}
 			else this->ivector->GetLocalVector(pvector,pindices);
+
+			int size;
+			this->GetLocalSize(&size);
+			ArrayDebugOutput("getLocalVector out", size, *pvector);
 
 		}
 		/*}}}*/
@@ -258,38 +269,50 @@ class Vector{
 		} /*}}}*/
 		void Set(doubletype value){_assert_(this);/*{{{*/
 
+			ArrayDebugOutput("set in", 1, &value);
+
 			if(type==PetscVecType){
 				#ifdef _HAVE_PETSC_
 				this->pvector->Set(value);
 				#endif
 			}
 			else this->ivector->Set(value);
+			EchoDebug("Set");
 
 		}
 		/*}}}*/
 		void AXPY(Vector* X, doubletype a){_assert_(this);/*{{{*/
 
+			ArrayDebugOutput("AXPY a", 1, &a);
+			X->EchoDebug("AXPY x");
+			EchoDebug("AXPY y in");
 			if(type==PetscVecType){
 				#ifdef _HAVE_PETSC_
 				this->pvector->AXPY(X->pvector,a);
 				#endif
 			}
 			else this->ivector->AXPY(X->ivector,a);
+			EchoDebug("AXPY y out");
 
 		}
 		/*}}}*/
 		void AYPX(Vector* X, doubletype a){_assert_(this);/*{{{*/
 
+			ArrayDebugOutput("AyPX a", 1, &a);
+			X->EchoDebug("AYPX x");
+			EchoDebug("AYPX y in");
 			if(type==PetscVecType){
 				#ifdef _HAVE_PETSC_
 				this->pvector->AYPX(X->pvector,a);
 				#endif
 			}
 			else this->ivector->AYPX(X->ivector,a);
+			EchoDebug("AYPX y out");
 		}
 		/*}}}*/
 		doubletype* ToMPISerial(void){/*{{{*/
 
+			EchoDebug("ToMpiSerial");
 			doubletype* vec_serial=NULL;
 
 			_assert_(this);
@@ -300,12 +323,17 @@ class Vector{
 			}
 			else vec_serial=this->ivector->ToMPISerial();
 
+			int size;
+			this->GetLocalSize(&size);
+			ArrayDebugOutput("ToMpiSerial out", size, vec_serial);
+
 			return vec_serial;
 
 		}
 		/*}}}*/
 		doubletype* ToMPISerial0(void){/*{{{*/
 
+			EchoDebug("ToMpiSerial0");
 			doubletype* vec_serial=NULL;
 
 			_assert_(this);
@@ -318,32 +346,45 @@ class Vector{
 			}
 			else vec_serial=this->ivector->ToMPISerial0();
 
+			int size;
+			this->GetLocalSize(&size);
+			ArrayDebugOutput("ToMpiSerial0 out", size, vec_serial);
+
 			return vec_serial;
 
 		}
 		/*}}}*/
 		void Shift(doubletype shift){_assert_(this);/*{{{*/
 
+			ArrayDebugOutput("shift in", 1, &shift);
+
+			EchoDebug("Shift in");
 			if(type==PetscVecType){
 				#ifdef _HAVE_PETSC_
 				this->pvector->Shift(shift);
 				#endif
 			}
 			else this->ivector->Shift(shift);
+			EchoDebug("Shift out");
 		}
 		/*}}}*/
 		void Copy(Vector* to){_assert_(this);/*{{{*/
 
+			EchoDebug("Copy in");
 			if(type==PetscVecType){
 				#ifdef _HAVE_PETSC_
 				this->pvector->Copy(to->pvector);
 				#endif
 			}
 			else this->ivector->Copy(to->ivector);
+
+			to->EchoDebug("Copy out");
+
 		}
 		/*}}}*/
 		doubletype Max(void){_assert_(this);/*{{{*/
 
+			EchoDebug("Max");
 			doubletype max=0;
 
 			if(type==PetscVecType){
@@ -352,6 +393,8 @@ class Vector{
 				#endif
 			}
 			else _error_("operation not supported yet");
+
+			ArrayDebugOutput("max out", 1, &max);
 			return max;
 		}
 		/*}}}*/
@@ -359,27 +402,37 @@ class Vector{
 
 			doubletype norm=0;
 
+			EchoDebug("Norm");
+
 			if(type==PetscVecType){
 				#ifdef _HAVE_PETSC_
 				norm=this->pvector->Norm(norm_type);
 				#endif
 			}
 			else norm=this->ivector->Norm(norm_type);
+
+			ArrayDebugOutput("norm out", 1, &norm);
 			return norm;
 		}
 		/*}}}*/
 		void Scale(doubletype scale_factor){_assert_(this);/*{{{*/
 
+			ArrayDebugOutput("scale s in", 1, &scale_factor);
+			EchoDebug("Scale in");
 			if(type==PetscVecType){
 				#ifdef _HAVE_PETSC_
 				this->pvector->Scale(scale_factor);
 				#endif
 			}
 			else this->ivector->Scale(scale_factor);
+
+			EchoDebug("Scale out");
 		}
 		/*}}}*/
 		doubletype Dot(Vector* vector){_assert_(this);/*{{{*/
 
+			EchoDebug("Dot 1");
+			vector->EchoDebug("Dot 2");
 			doubletype dot;
 
 			if(type==PetscVecType){
@@ -388,48 +441,61 @@ class Vector{
 				#endif
 			}
 			else dot=this->ivector->Dot(vector->ivector);
+			ArrayDebugOutput("dot out", 1, &dot);
 			return dot;
 		}
 		/*}}}*/
 		void PointwiseDivide(Vector* x,Vector* y){_assert_(this);/*{{{*/
 
+			x->EchoDebug("PointwiseDevide x");
+			y->EchoDebug("PointwiseDevide y");
 			if(type==PetscVecType){
 				#ifdef _HAVE_PETSC_
 				this->pvector->PointwiseDivide(x->pvector,y->pvector);
 				#endif
 			}
 			else this->ivector->PointwiseDivide(x->ivector,y->ivector);
+			EchoDebug("PointwiseDevide r");
 		}
 		/*}}}*/
 		void PointwiseMult(Vector* x,Vector* y){_assert_(this);/*{{{*/
 
+			x->EchoDebug("PointwiseMult x");
+			y->EchoDebug("PointwiseMult y");
 			if(type==PetscVecType){
 				#ifdef _HAVE_PETSC_
 				this->pvector->PointwiseMult(x->pvector,y->pvector);
 				#endif
 			}
 			else this->ivector->PointwiseMult(x->ivector,y->ivector);
+			EchoDebug("PointwiseMult r");
 		}
 		/*}}}*/
 		void Pow(doubletype scale_factor){_assert_(this);/*{{{*/
 
+			ArrayDebugOutput("pow s in", 1, &scale_factor);
+			EchoDebug("pow in");
 			if(type==PetscVecType){
 				#ifdef _HAVE_PETSC_
 				this->pvector->Pow(scale_factor);
 				#endif
 			}
 			else this->ivector->Pow(scale_factor);
+			EchoDebug("pow out");
 		}
 		/*}}}*/
 void Sum(doubletype* pvalue){ /*{{{*/
 	_assert_(this);/*{{{*/
 
+	EchoDebug("sum");
 	if(type==PetscVecType){
 		#ifdef _HAVE_PETSC_
 		this->pvector->Sum(pvalue);
 		#endif
 	}
 	else this->ivector->Sum(pvalue);
+
+	ArrayDebugOutput("sum out", 1, pvalue);
 }
 /*}}}*/
 }; /*}}}*/

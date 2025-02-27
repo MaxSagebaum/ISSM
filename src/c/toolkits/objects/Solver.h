@@ -58,6 +58,8 @@ class Solver{
 			/*Initialize vector: */
 			uf=new Vector<doubletype>();
 
+      Kff->EchoDebug("solve A");
+      pf->EchoDebug("solve b");
 			/*According to matrix type, use specific solvers: */
 			switch(Kff->type){
 				#ifdef _HAVE_PETSC_
@@ -77,6 +79,8 @@ class Solver{
 				default:
 					_error_("Matrix type: " << Kff->type << " not supported yet!");
 			}
+
+      uf->EchoDebug("solve x");
 
 			/*allocate output pointer: */
 			return uf;

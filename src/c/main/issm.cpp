@@ -4,10 +4,17 @@
 
 #include "./issm.h"
 
+#ifdef _HAVE_CODIPACK_
+#include "../toolkits/codipack/CoDiPackDebug.h"
+#endif
+
 int main(int argc,char **argv){
 
 	/*Initialize exception trapping: */
 	ExceptionTrapBegin();
+
+  CoDiDebugSetOutputPrimal(true);
+  CoDiDebugSetOutputIdentifiers(true);
 
 	/*Initialize environment (MPI, PETSC, MUMPS, etc ...)*/
 	ISSM_MPI_Comm comm_init=EnvironmentInit(argc,argv);
