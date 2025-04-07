@@ -196,6 +196,7 @@ class Matrix{
 			}
 		}/*}}}*/
 		void Assemble(void){/*{{{*/
+      CoDiPauseDumpTape();
 
 			if(type==PetscMatType){
 				#ifdef _HAVE_PETSC_
@@ -207,9 +208,11 @@ class Matrix{
 			}
 
 			EchoDebug("mat assemble out");
+      CoDiResumeDumpTape();
 		}
 		/*}}}*/
 		IssmDouble Norm(NormMode norm_type){/*{{{*/
+      CoDiPauseDumpTape();
 
 			EchoDebug("mat norm in");
 			IssmDouble norm=0;
@@ -226,6 +229,7 @@ class Matrix{
 			ArrayDebugOutput("mat norm out", 1, &norm);
 
 			return norm;
+      CoDiResumeDumpTape();
 		}
 		/*}}}*/
 		void GetSize(int* pM,int* pN){/*{{{*/
@@ -255,6 +259,7 @@ class Matrix{
 		}
 		/*}}}*/
 		void MatMult(Vector<doubletype>* X,Vector<doubletype>* AX){/*{{{*/
+      CoDiPauseDumpTape();
 
 			X->EchoDebug("mat mult X in");
 			EchoDebug("mat mult A in");
@@ -270,9 +275,11 @@ class Matrix{
 
 			AX->EchoDebug("mat mult AX out");
 
+      CoDiResumeDumpTape();
 		}
 		/*}}}*/
 		Matrix<doubletype>* Duplicate(void){/*{{{*/
+      CoDiPauseDumpTape();
 
 			Matrix<doubletype>* output=new Matrix<doubletype>();
 
@@ -285,10 +292,12 @@ class Matrix{
 				output->imatrix=this->imatrix->Duplicate();
 			}
 
+      CoDiResumeDumpTape();
 			return output;
 		}
 		/*}}}*/
 		doubletype* ToMPISerial0(void){/*{{{*/
+      CoDiPauseDumpTape();
 
 			doubletype* output=NULL;
 
@@ -301,10 +310,12 @@ class Matrix{
 				output=this->imatrix->ToMPISerial0();
 			}
 
+      CoDiResumeDumpTape();
 			return output;
 		}
 		/*}}}*/
 		doubletype* ToMPISerial(void){/*{{{*/
+      CoDiPauseDumpTape();
 
 			doubletype* output=NULL;
 
@@ -317,10 +328,12 @@ class Matrix{
 				_error_("not implemented yet!");
 			}
 
+      CoDiResumeDumpTape();
 			return output;
 		}
 		/*}}}*/
 		void SetValues(int m,int* idxm,int n,int* idxn,IssmDouble* values,InsMode mode){/*{{{*/
+      CoDiPauseDumpTape();
 
 			ArrayDebugOutput("mat setValues in", m * n, values);
 
@@ -332,9 +345,11 @@ class Matrix{
 			else{
 				this->imatrix->SetValues(m,idxm,n,idxn,values,mode);
 			}
+      CoDiResumeDumpTape();
 		}
 		/*}}}*/
 		void Convert(MatrixType newtype){/*{{{*/
+      CoDiPauseDumpTape();
 
 			if(type==PetscMatType){
 				#ifdef _HAVE_PETSC_
@@ -345,9 +360,11 @@ class Matrix{
 				this->imatrix->Convert(newtype);
 			}
 
+      CoDiResumeDumpTape();
 		}
 		/*}}}*/
 		void SetZero(void) {/*{{{*/
+      CoDiPauseDumpTape();
 			// sets all values to 0 but keeps the structure of a sparse matrix
 			if(type==PetscMatType){
 				#ifdef _HAVE_PETSC_
@@ -357,6 +374,7 @@ class Matrix{
 			else{
 				this->imatrix->SetZero();
 			}
+      CoDiResumeDumpTape();
 		}
 		/*}}}*/
 };

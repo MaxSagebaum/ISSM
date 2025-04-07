@@ -52,14 +52,13 @@ int CoDiGetUniqueID() {
 void writeId(Identifier id) {
   if(debugSettings.outputId) {
     if(debugSettings.idFormatLong) {
-      (*debugSettings.stream) << "(" << entry.id << ")";
+      (*debugSettings.stream) << "(" << id << ")";
     }
     else {
       char id_str = 'a';
-      if(0 == entry.id) {
+      if(0 == id) {
         id_str = 'p';
       }
-      out << "(" << id_str  << ")";
       (*debugSettings.stream) << "(" << id_str << ")";
     }
   }

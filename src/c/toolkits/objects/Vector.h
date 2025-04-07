@@ -68,7 +68,7 @@ class Vector{
 		}
 		/*}}}*/
 		Vector(doubletype* serial_vec,int M){ /*{{{*/
-
+      CoDiPauseDumpTape();
 			ArrayDebugOutput("constructor from serial", M, serial_vec);
 			InitCheckAndSetType();
 
@@ -78,6 +78,7 @@ class Vector{
 				#endif
 			}
 			else this->ivector=new IssmVec<doubletype>(serial_vec,M);
+      CoDiResumeDumpTape();
 		}
 		/*}}}*/
 		~Vector(){ /*{{{*/
@@ -155,6 +156,7 @@ class Vector{
 		}
 		/*}}}*/
 		void Assemble(void){_assert_(this);/*{{{*/
+      CoDiPauseDumpTape();
 
 			if(type==PetscVecType){
 				#ifdef _HAVE_PETSC_
@@ -163,9 +165,11 @@ class Vector{
 			}
 			else this->ivector->Assemble();
 			EchoDebug("assemble");
+      CoDiResumeDumpTape();
 		}
 		/*}}}*/
 		void SetValues(int ssize, int* list, doubletype* values, InsMode mode){ _assert_(this);/*{{{*/
+      CoDiPauseDumpTape();
 			ArrayDebugOutput("setValues in", ssize, values);
 
 			if(type==PetscVecType){
@@ -174,10 +178,11 @@ class Vector{
 				#endif
 			}
 			else this->ivector->SetValues(ssize,list,values,mode);
-
+      CoDiResumeDumpTape();
 		}
 		/*}}}*/
 		void SetValue(int dof, doubletype value, InsMode mode){_assert_(this);/*{{{*/
+      CoDiPauseDumpTape();
 
 			if(type==PetscVecType){
 				#ifdef _HAVE_PETSC_
@@ -185,10 +190,11 @@ class Vector{
 				#endif
 			}
 			else this->ivector->SetValue(dof,value,mode);
-
+      CoDiResumeDumpTape();
 		}
 		/*}}}*/
 		void GetValue(doubletype* pvalue,int dof){_assert_(this);/*{{{*/
+      CoDiPauseDumpTape();
 
 			EchoDebug("GetValue");
 			if(type==PetscVecType){
@@ -199,7 +205,7 @@ class Vector{
 			else this->ivector->GetValue(pvalue,dof);
 
 			ArrayDebugOutput("getValue out", 1, pvalue);
-
+      CoDiResumeDumpTape();
 		}
 		/*}}}*/
 		void GetSize(int* pM){_assert_(this);/*{{{*/
@@ -237,6 +243,7 @@ class Vector{
 		}
 		/*}}}*/
 		void GetLocalVector(doubletype** pvector,int** pindices){_assert_(this);/*{{{*/
+      CoDiPauseDumpTape();
 
 			EchoDebug("GetLocalVector");
 			if(type==PetscVecType){
@@ -249,10 +256,11 @@ class Vector{
 			int size;
 			this->GetLocalSize(&size);
 			ArrayDebugOutput("getLocalVector out", size, *pvector);
-
+      CoDiResumeDumpTape();
 		}
 		/*}}}*/
 		Vector<doubletype>* Duplicate(void){_assert_(this);/*{{{*/
+      CoDiPauseDumpTape();
 
 			Vector<doubletype>* output=NULL;
 
@@ -264,10 +272,11 @@ class Vector{
 				#endif
 			}
 			else output->ivector=this->ivector->Duplicate();
-
+      CoDiResumeDumpTape();
 			return output;
 		} /*}}}*/
 		void Set(doubletype value){_assert_(this);/*{{{*/
+      CoDiPauseDumpTape();
 
 			ArrayDebugOutput("set in", 1, &value);
 
@@ -278,10 +287,11 @@ class Vector{
 			}
 			else this->ivector->Set(value);
 			EchoDebug("Set");
-
+      CoDiResumeDumpTape();
 		}
 		/*}}}*/
 		void AXPY(Vector* X, doubletype a){_assert_(this);/*{{{*/
+      CoDiPauseDumpTape();
 
 			ArrayDebugOutput("AXPY a", 1, &a);
 			X->EchoDebug("AXPY x");
@@ -293,10 +303,11 @@ class Vector{
 			}
 			else this->ivector->AXPY(X->ivector,a);
 			EchoDebug("AXPY y out");
-
+      CoDiResumeDumpTape();
 		}
 		/*}}}*/
 		void AYPX(Vector* X, doubletype a){_assert_(this);/*{{{*/
+      CoDiPauseDumpTape();
 
 			ArrayDebugOutput("AyPX a", 1, &a);
 			X->EchoDebug("AYPX x");
@@ -307,10 +318,12 @@ class Vector{
 				#endif
 			}
 			else this->ivector->AYPX(X->ivector,a);
-			EchoDebug("AYPX y out");
+      EchoDebug("AYPX y out");
+      CoDiResumeDumpTape();
 		}
 		/*}}}*/
 		doubletype* ToMPISerial(void){/*{{{*/
+      CoDiPauseDumpTape();
 
 			EchoDebug("ToMpiSerial");
 			doubletype* vec_serial=NULL;
@@ -327,11 +340,12 @@ class Vector{
 			this->GetLocalSize(&size);
 			ArrayDebugOutput("ToMpiSerial out", size, vec_serial);
 
+      CoDiResumeDumpTape();
 			return vec_serial;
-
 		}
 		/*}}}*/
 		doubletype* ToMPISerial0(void){/*{{{*/
+      CoDiPauseDumpTape();
 
 			EchoDebug("ToMpiSerial0");
 			doubletype* vec_serial=NULL;
@@ -350,11 +364,12 @@ class Vector{
 			this->GetLocalSize(&size);
 			ArrayDebugOutput("ToMpiSerial0 out", size, vec_serial);
 
+      CoDiResumeDumpTape();
 			return vec_serial;
-
 		}
 		/*}}}*/
 		void Shift(doubletype shift){_assert_(this);/*{{{*/
+      CoDiPauseDumpTape();
 
 			ArrayDebugOutput("shift in", 1, &shift);
 
@@ -365,10 +380,12 @@ class Vector{
 				#endif
 			}
 			else this->ivector->Shift(shift);
-			EchoDebug("Shift out");
+      EchoDebug("Shift out");
+      CoDiResumeDumpTape();
 		}
 		/*}}}*/
 		void Copy(Vector* to){_assert_(this);/*{{{*/
+      CoDiPauseDumpTape();
 
 			EchoDebug("Copy in");
 			if(type==PetscVecType){
@@ -379,10 +396,11 @@ class Vector{
 			else this->ivector->Copy(to->ivector);
 
 			to->EchoDebug("Copy out");
-
+      CoDiResumeDumpTape();
 		}
 		/*}}}*/
 		doubletype Max(void){_assert_(this);/*{{{*/
+      CoDiPauseDumpTape();
 
 			EchoDebug("Max");
 			doubletype max=0;
@@ -395,10 +413,12 @@ class Vector{
 			else _error_("operation not supported yet");
 
 			ArrayDebugOutput("max out", 1, &max);
-			return max;
+      CoDiResumeDumpTape();
+      return max;
 		}
 		/*}}}*/
 		doubletype Norm(NormMode norm_type){_assert_(this);/*{{{*/
+      CoDiPauseDumpTape();
 
 			doubletype norm=0;
 
@@ -412,10 +432,12 @@ class Vector{
 			else norm=this->ivector->Norm(norm_type);
 
 			ArrayDebugOutput("norm out", 1, &norm);
+      CoDiResumeDumpTape();
 			return norm;
 		}
 		/*}}}*/
 		void Scale(doubletype scale_factor){_assert_(this);/*{{{*/
+      CoDiPauseDumpTape();
 
 			ArrayDebugOutput("scale s in", 1, &scale_factor);
 			EchoDebug("Scale in");
@@ -427,9 +449,11 @@ class Vector{
 			else this->ivector->Scale(scale_factor);
 
 			EchoDebug("Scale out");
+      CoDiResumeDumpTape();
 		}
 		/*}}}*/
 		doubletype Dot(Vector* vector){_assert_(this);/*{{{*/
+      CoDiPauseDumpTape();
 
 			EchoDebug("Dot 1");
 			vector->EchoDebug("Dot 2");
@@ -442,10 +466,12 @@ class Vector{
 			}
 			else dot=this->ivector->Dot(vector->ivector);
 			ArrayDebugOutput("dot out", 1, &dot);
+      CoDiResumeDumpTape();
 			return dot;
 		}
 		/*}}}*/
 		void PointwiseDivide(Vector* x,Vector* y){_assert_(this);/*{{{*/
+      CoDiPauseDumpTape();
 
 			x->EchoDebug("PointwiseDevide x");
 			y->EchoDebug("PointwiseDevide y");
@@ -456,9 +482,11 @@ class Vector{
 			}
 			else this->ivector->PointwiseDivide(x->ivector,y->ivector);
 			EchoDebug("PointwiseDevide r");
+      CoDiResumeDumpTape();
 		}
 		/*}}}*/
 		void PointwiseMult(Vector* x,Vector* y){_assert_(this);/*{{{*/
+      CoDiPauseDumpTape();
 
 			x->EchoDebug("PointwiseMult x");
 			y->EchoDebug("PointwiseMult y");
@@ -469,9 +497,11 @@ class Vector{
 			}
 			else this->ivector->PointwiseMult(x->ivector,y->ivector);
 			EchoDebug("PointwiseMult r");
+      CoDiResumeDumpTape();
 		}
 		/*}}}*/
 		void Pow(doubletype scale_factor){_assert_(this);/*{{{*/
+      CoDiPauseDumpTape();
 
 			ArrayDebugOutput("pow s in", 1, &scale_factor);
 			EchoDebug("pow in");
@@ -482,9 +512,11 @@ class Vector{
 			}
 			else this->ivector->Pow(scale_factor);
 			EchoDebug("pow out");
+      CoDiResumeDumpTape();
 		}
 		/*}}}*/
 void Sum(doubletype* pvalue){ /*{{{*/
+  CoDiPauseDumpTape();
 	_assert_(this);/*{{{*/
 
 	EchoDebug("sum");
@@ -496,6 +528,7 @@ void Sum(doubletype* pvalue){ /*{{{*/
 	else this->ivector->Sum(pvalue);
 
 	ArrayDebugOutput("sum out", 1, pvalue);
+  CoDiResumeDumpTape();
 }
 /*}}}*/
 }; /*}}}*/

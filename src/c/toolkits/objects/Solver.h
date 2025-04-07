@@ -51,6 +51,7 @@ class Solver{
 
 		/*Methods: */
 		Vector<doubletype>* Solve(void){ /*{{{*/
+      CoDiPauseDumpTape();
 
 			/*output: */
 			Vector<doubletype>* uf=NULL;
@@ -83,6 +84,7 @@ class Solver{
       uf->EchoDebug("solve x");
 
 			/*allocate output pointer: */
+      CoDiResumeDumpTape();
 			return uf;
 		}
 		/*}}}*/
