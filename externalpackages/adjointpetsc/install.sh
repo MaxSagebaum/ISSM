@@ -16,7 +16,7 @@ cmake src \
     -DBUILD_SHARED_LIBS=ON \
     -DCMAKE_INSTALL_PREFIX=$ISSM_DIR/externalpackages/adjointpetsc/install \
     -DCoDiPack_DIR=$ISSM_DIR/externalpackages/codipack/install/cmake \
-    -DPESTc_DIR=$ISSM_DIR/externalpackages/petsc/install
+    -DPETSc_DIR=$ISSM_DIR/externalpackages/petsc/install
 if [ $# -eq 0 ]; then
   cmake --build build
 else
