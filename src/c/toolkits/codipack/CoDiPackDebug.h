@@ -13,6 +13,13 @@
 
 int CoDiGetUniqueID();
 
+void CoDiStartDumpTape();
+void CoDiStopDumpTape();
+void CoDiStartDumpEval();
+void CoDiStopDumpEval();
+void CoDiPauseDumpTape();
+void CoDiResumeDumpTape();
+
 bool          CoDiDebugGetOutputPrimal();
 bool          CoDiDebugGetOutputReverse();
 bool          CoDiDebugGetOutputIdentifiers();

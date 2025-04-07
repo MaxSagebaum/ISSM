@@ -21,41 +21,132 @@ using Real = typename CoDiReal::Real;
 using Identifier = typename CoDiReal::Identifier;
 using Tape = typename CoDiReal::Tape;
 using VectorInterface = codi::VectorAccessInterface<Real, Identifier>;
+using EventHandle = typename codi::EventSystem<Tape>::Handle;
 
 struct DebugSettings {
-		bool outputPrimal;
-		bool outputReverse;
-		bool outputId;
+		bool outputPrimal           = false;
+		bool outputReverse          = true;
+		bool outputId               = false;
+    bool idFormatLong           = false;
 
-		int precission;
+    bool debugEnabled           = false;
+    bool dumpTape               = false;
+    bool dumpTapePaused         = false;
+		int precission              = 12;
 
-		std::ostream* stream;
+    int globalId                = 0;
 
-		DebugSettings() :
-			outputPrimal(false),
-			outputReverse(true),
-			outputId(false),
-			precission(12),
-			stream(&std::cerr)
-		{}
+		std::ostream* stream        = &std::cerr;
+
+    EventHandle dumpEventHandle = {};
 };
 
-int global_id = 0;
-bool debug_enabled = true;
 DebugSettings debugSettings = {};
 
-
 int CoDiGetUniqueID() {
-	global_id += 1;
+	debugSettings.globalId += 1;
 
-	return global_id;
+	return debugSettings.globalId;
+}
+
+void writeId(Identifier id) {
+  if(debugSettings.outputId) {
+    if(debugSettings.idFormatLong) {
+      (*debugSettings.stream) << "(" << entry.id << ")";
+    }
+    else {
+      char id_str = 'a';
+      if(0 == entry.id) {
+        id_str = 'p';
+      }
+      out << "(" << id_str  << ")";
+      (*debugSettings.stream) << "(" << id_str << ")";
+    }
+  }
+}
+
+void handleStatementRecord(Tape& tape, Identifier const& lhsIdentifier, Real const& newValue,
+                           size_t numActiveVariables, Identifier const* rhsIdentifiers, Real const* jacobians,
+                           void* userData) {
+  std::ostream& stream = CoDiDebugGetOutputStream();
+
+  if(debugSettings.dumpTape && !debugSettings.dumpTapePaused) {
+    stream.setf(std::ios::scientific);
+    stream.setf(std::ios::showpos);
+    stream.precision(CoDiDebugGetOutputPrecission());
+
+    stream << "primal: " << newValue << "\n";
+    // write jacobie values
+    for(size_t i = 0; i < numActiveVariables; ++i) {
+      stream << "jac: " << i << " " << jacobians[i] << "\n";
+    }
+  }
+}
+
+static void handleStatementEvaluate(Tape& tape, Identifier const& lhsIdentifier, size_t sizeLhsAdjoint,
+                                    Real const* lhsAdjoint, void* userData) {
+  std::ostream& stream = CoDiDebugGetOutputStream();
+
+  if(debugSettings.dumpTape && !debugSettings.dumpTapePaused) {
+    stream.setf(std::ios::scientific);
+    stream.setf(std::ios::showpos);
+    stream.precision(CoDiDebugGetOutputPrecission());
+
+    for(size_t i = 0; i < sizeLhsAdjoint; ++i) {
+      stream << "lhs: " << i << " " << lhsAdjoint[i] << "\n";
+    }
+  }
+}
+
+void CoDiStartDumpTape() {
+	if(!CoDiIsDebugOutput()) { return; }
+
+  debugSettings.dumpTape = true;
+  debugSettings.dumpEventHandle = codi::EventSystem<Tape>::registerStatementStoreOnTapeListener(handleStatementRecord, nullptr);
+}
+void CoDiStopDumpTape() {
+	if(!CoDiIsDebugOutput()) { return; }
+
+  codi::EventSystemBase<Tape>::deregisterListener(debugSettings.dumpEventHandle);
+  debugSettings.dumpTape = false;
+}
+
+void CoDiStartDumpEval() {
+	if(!CoDiIsDebugOutput()) { return; }
+
+  debugSettings.dumpTape = true;
+  debugSettings.dumpEventHandle = codi::EventSystem<Tape>::registerStatementEvaluateListener(handleStatementEvaluate, nullptr);
+}
+
+void CoDiStopDumpEval() {
+	if(!CoDiIsDebugOutput()) { return; }
+
+  codi::EventSystemBase<Tape>::deregisterListener(debugSettings.dumpEventHandle);
+  debugSettings.dumpTape = false;
+}
+
+void reverse_dump(Tape* tape, void* d, VectorInterface* vi) {
+  debugSettings.dumpTape = !debugSettings.dumpTape;
+}
+
+void CoDiPauseDumpTape() {
+
+	if(!CoDiIsDebugOutput()) { return; }
+  debugSettings.dumpTapePaused = true;
+  CoDiReal::getTape().pushExternalFunction(codi::ExternalFunction<Tape>::create( reverse_dump, nullptr, nullptr));
+}
+void CoDiResumeDumpTape() {
+	if(!CoDiIsDebugOutput()) { return; }
+
+  debugSettings.dumpTapePaused = false;
+  CoDiReal::getTape().pushExternalFunction(codi::ExternalFunction<Tape>::create( reverse_dump, nullptr, nullptr));
 }
 
 bool          CoDiDebugGetOutputPrimal() {return debugSettings.outputPrimal; }
 bool          CoDiDebugGetOutputReverse() {return debugSettings.outputReverse; }
 bool          CoDiDebugGetOutputIdentifiers() {return debugSettings.outputId; }
-int           CoDiDebugGetPrecission() {return debugSettings.precission; }
-std::ostream& CoDiDebugGetStream() {return *debugSettings.stream; }
+int           CoDiDebugGetOutputPrecission() {return debugSettings.precission; }
+std::ostream& CoDiDebugGetOutputStream() {return *debugSettings.stream; }
 
 void CoDiDebugSetOutputPrimal(bool value) {
 	debugSettings.outputPrimal = value;
@@ -93,17 +184,17 @@ void CoDiDebugSetOutputStream(std::ostream& value) {
 }
 
 bool CoDiIsDebugOutput() {
-	return debug_enabled;
+	return debugSettings.debugEnabled;
 }
 
 void CoDiEnableDebugOutput(bool b) {
 	if(b) {
-		debug_enabled = true;
+		debugSettings.debugEnabled = true;
 	}
 }
 bool CoDiDisableDebugOutput() {
-	bool cur = debug_enabled;
-	debug_enabled = false;
+	bool cur = debugSettings.debugEnabled;
+	debugSettings.debugEnabled = false;
 
 	return cur;
 }
@@ -162,21 +253,19 @@ struct Data_MatDebugOutputReverse {
 			out.setf(std::ios::showpos);
 			out.precision(debugSettings.precission);
 
-			std::cout << data->message << " reverse matrix id: " << data->id << std::endl;
+			out << data->message << " reverse matrix id: " << data->id << std::endl;
 			for(int cur_dim = 0; cur_dim < dim; cur_dim += 1) {
 				int my_rank=IssmComm::GetRank();
 				for(int i=0;i<IssmComm::GetSize();i++){
 					if(my_rank==i){
 						if(i==0) {
-							std::cout << "Matrix of global size " << data->M << "x" << data->N << std::endl;
+							out << "Matrix of global size " << data->M << "x" << data->N << std::endl;
 						}
 						out << "Rank: " << my_rank  << " dim: " << cur_dim <<"\n";
 						for(size_t j = 0; j < data->entries.size(); j += 1) {
 							MatDataEntry& entry = data->entries[j];
 							out << entry.row << " " << entry.col << " " << vi->getAdjoint(entry.id, cur_dim);
-							if(debugSettings.outputId) {
-								out << "(" << entry.id << ")";
-							}
+              writeId(entry.id);
 							out << "\n";
 						}
 					}
@@ -269,9 +358,7 @@ void MatDebugOutputFinish(void* h) {
 				for(size_t i = 0; i < handle->entries.size(); i += 1) {
 					MatDataEntry& entry = handle->entries[i];
 					out << entry.row << " " << entry.col << " " << entry.value;
-					if(debugSettings.outputId) {
-						out << "(" << entry.id << ")";
-					}
+          writeId(entry.id);
 					out << "\n";
 				}
 				out.flush();
@@ -317,10 +404,10 @@ struct Data_VecDebugOutputReverse {
 			if(my_rank == 0) {
 				if(data->is_array) {
 					out << data->message << " reverse array id: " << data->id << std::endl;
-					out << "Vector of global size " << data->M << std::endl;
+					out << "Array of size " << data->M << std::endl;
 				} else {
 					out << data->message << " reverse vector id: " << data->id << std::endl;
-					out << "Array of size " << data->M << std::endl;
+					out << "Vector of global size M=" << data->M << std::endl;
 				}
 			}
 			for(int cur_dim = 0; cur_dim < dim; cur_dim += 1) {
@@ -331,13 +418,11 @@ struct Data_VecDebugOutputReverse {
 						}
 						for(size_t j=0;j<data->vec_i.size();j++){
 							out << vi->getAdjoint(data->vec_i[j], cur_dim);
-							if(debugSettings.outputId) {
-								out << "(" << data->vec_i[j] << ")";
-							}
+              writeId(data->vec_i[j]);
 							out << "\n";
 						}
 					}
-					std::cout.flush();
+					out.flush();
 					ISSM_MPI_Barrier(IssmComm::GetComm());
 				}
 			}
@@ -382,9 +467,7 @@ void VecDebugOutputImpl(std::string message, int M, int m, CoDiReal* values, boo
 					out << "Rank: " << cur_rank << "\n";
 					for(size_t i = 0; i < m; i += 1) {
 						out << values[i].getValue();
-						if(debugSettings.outputId) {
-							out << "(" << values[i].getIdentifier() << ")";
-						}
+            writeId(values[i].getIdentifier());
 						out << "\n";
 					}
 					out.flush();
