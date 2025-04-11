@@ -203,6 +203,7 @@ Object* Node::copy(void){/*{{{*/
 	output->sid = this->sid;
 	output->lid = this->lid;
 	output->pid = this->pid;
+  output->isrotated = this->isrotated;
 	output->analysis_enum = this->analysis_enum;
 	output->approximation = this->approximation;
 
