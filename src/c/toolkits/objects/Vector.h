@@ -17,6 +17,10 @@
 #include "../../shared/Enum/Enum.h"
 #include "../petsc/petscincludes.h"
 #include "../issm/issmtoolkit.h"
+
+#ifdef _HAVE_CODIPACK_
+#include "../codipack/CoDiPackDebug.h"
+#endif
 /*}}}*/
 
 enum vectortype { PetscVecType, IssmVecType };
@@ -64,7 +68,8 @@ class Vector{
 		}
 		/*}}}*/
 		Vector(doubletype* serial_vec,int M){ /*{{{*/
-
+      CoDiPauseDumpTape();
+			ArrayDebugOutput("constructor from serial", M, serial_vec);
 			InitCheckAndSetType();
 
 			if(type==PetscVecType){
@@ -73,6 +78,7 @@ class Vector{
 				#endif
 			}
 			else this->ivector=new IssmVec<doubletype>(serial_vec,M);
+      CoDiResumeDumpTape();
 		}
 		/*}}}*/
 		~Vector(){ /*{{{*/
@@ -150,6 +156,7 @@ class Vector{
 		}
 		/*}}}*/
 		void Assemble(void){_assert_(this);/*{{{*/
+      CoDiPauseDumpTape();
 
 			if(type==PetscVecType){
 				#ifdef _HAVE_PETSC_
@@ -157,20 +164,25 @@ class Vector{
 				#endif
 			}
 			else this->ivector->Assemble();
-
+			EchoDebug("assemble");
+      CoDiResumeDumpTape();
 		}
 		/*}}}*/
 		void SetValues(int ssize, int* list, doubletype* values, InsMode mode){ _assert_(this);/*{{{*/
+      CoDiPauseDumpTape();
+			ArrayDebugOutput("setValues in", ssize, values);
+
 			if(type==PetscVecType){
 				#ifdef _HAVE_PETSC_
 				this->pvector->SetValues(ssize,list,values,mode);
 				#endif
 			}
 			else this->ivector->SetValues(ssize,list,values,mode);
-
+      CoDiResumeDumpTape();
 		}
 		/*}}}*/
 		void SetValue(int dof, doubletype value, InsMode mode){_assert_(this);/*{{{*/
+      CoDiPauseDumpTape();
 
 			if(type==PetscVecType){
 				#ifdef _HAVE_PETSC_
@@ -178,11 +190,13 @@ class Vector{
 				#endif
 			}
 			else this->ivector->SetValue(dof,value,mode);
-
+      CoDiResumeDumpTape();
 		}
 		/*}}}*/
 		void GetValue(doubletype* pvalue,int dof){_assert_(this);/*{{{*/
+      CoDiPauseDumpTape();
 
+			EchoDebug("GetValue");
 			if(type==PetscVecType){
 				#ifdef _HAVE_PETSC_
 				this->pvector->GetValue(pvalue,dof);
@@ -190,6 +204,8 @@ class Vector{
 			}
 			else this->ivector->GetValue(pvalue,dof);
 
+			ArrayDebugOutput("getValue out", 1, pvalue);
+      CoDiResumeDumpTape();
 		}
 		/*}}}*/
 		void GetSize(int* pM){_assert_(this);/*{{{*/
@@ -227,7 +243,9 @@ class Vector{
 		}
 		/*}}}*/
 		void GetLocalVector(doubletype** pvector,int** pindices){_assert_(this);/*{{{*/
+      CoDiPauseDumpTape();
 
+			EchoDebug("GetLocalVector");
 			if(type==PetscVecType){
 				#ifdef _HAVE_PETSC_
 				this->pvector->GetLocalVector(pvector,pindices);
@@ -235,9 +253,14 @@ class Vector{
 			}
 			else this->ivector->GetLocalVector(pvector,pindices);
 
+			int size;
+			this->GetLocalSize(&size);
+			ArrayDebugOutput("getLocalVector out", size, *pvector);
+      CoDiResumeDumpTape();
 		}
 		/*}}}*/
 		Vector<doubletype>* Duplicate(void){_assert_(this);/*{{{*/
+      CoDiPauseDumpTape();
 
 			Vector<doubletype>* output=NULL;
 
@@ -249,10 +272,13 @@ class Vector{
 				#endif
 			}
 			else output->ivector=this->ivector->Duplicate();
-
+      CoDiResumeDumpTape();
 			return output;
 		} /*}}}*/
 		void Set(doubletype value){_assert_(this);/*{{{*/
+      CoDiPauseDumpTape();
+
+			ArrayDebugOutput("set in", 1, &value);
 
 			if(type==PetscVecType){
 				#ifdef _HAVE_PETSC_
@@ -260,32 +286,46 @@ class Vector{
 				#endif
 			}
 			else this->ivector->Set(value);
-
+			EchoDebug("Set");
+      CoDiResumeDumpTape();
 		}
 		/*}}}*/
 		void AXPY(Vector* X, doubletype a){_assert_(this);/*{{{*/
+      CoDiPauseDumpTape();
 
+			ArrayDebugOutput("AXPY a", 1, &a);
+			X->EchoDebug("AXPY x");
+			EchoDebug("AXPY y in");
 			if(type==PetscVecType){
 				#ifdef _HAVE_PETSC_
 				this->pvector->AXPY(X->pvector,a);
 				#endif
 			}
 			else this->ivector->AXPY(X->ivector,a);
-
+			EchoDebug("AXPY y out");
+      CoDiResumeDumpTape();
 		}
 		/*}}}*/
 		void AYPX(Vector* X, doubletype a){_assert_(this);/*{{{*/
+      CoDiPauseDumpTape();
 
+			ArrayDebugOutput("AyPX a", 1, &a);
+			X->EchoDebug("AYPX x");
+			EchoDebug("AYPX y in");
 			if(type==PetscVecType){
 				#ifdef _HAVE_PETSC_
 				this->pvector->AYPX(X->pvector,a);
 				#endif
 			}
 			else this->ivector->AYPX(X->ivector,a);
+      EchoDebug("AYPX y out");
+      CoDiResumeDumpTape();
 		}
 		/*}}}*/
 		doubletype* ToMPISerial(void){/*{{{*/
+      CoDiPauseDumpTape();
 
+			EchoDebug("ToMpiSerial");
 			doubletype* vec_serial=NULL;
 
 			_assert_(this);
@@ -296,12 +336,18 @@ class Vector{
 			}
 			else vec_serial=this->ivector->ToMPISerial();
 
-			return vec_serial;
+			int size;
+			this->GetLocalSize(&size);
+			ArrayDebugOutput("ToMpiSerial out", size, vec_serial);
 
+      CoDiResumeDumpTape();
+			return vec_serial;
 		}
 		/*}}}*/
 		doubletype* ToMPISerial0(void){/*{{{*/
+      CoDiPauseDumpTape();
 
+			EchoDebug("ToMpiSerial0");
 			doubletype* vec_serial=NULL;
 
 			_assert_(this);
@@ -314,32 +360,49 @@ class Vector{
 			}
 			else vec_serial=this->ivector->ToMPISerial0();
 
-			return vec_serial;
+			int size;
+			this->GetLocalSize(&size);
+			ArrayDebugOutput("ToMpiSerial0 out", size, vec_serial);
 
+      CoDiResumeDumpTape();
+			return vec_serial;
 		}
 		/*}}}*/
 		void Shift(doubletype shift){_assert_(this);/*{{{*/
+      CoDiPauseDumpTape();
 
+			ArrayDebugOutput("shift in", 1, &shift);
+
+			EchoDebug("Shift in");
 			if(type==PetscVecType){
 				#ifdef _HAVE_PETSC_
 				this->pvector->Shift(shift);
 				#endif
 			}
 			else this->ivector->Shift(shift);
+      EchoDebug("Shift out");
+      CoDiResumeDumpTape();
 		}
 		/*}}}*/
 		void Copy(Vector* to){_assert_(this);/*{{{*/
+      CoDiPauseDumpTape();
 
+			EchoDebug("Copy in");
 			if(type==PetscVecType){
 				#ifdef _HAVE_PETSC_
 				this->pvector->Copy(to->pvector);
 				#endif
 			}
 			else this->ivector->Copy(to->ivector);
+
+			to->EchoDebug("Copy out");
+      CoDiResumeDumpTape();
 		}
 		/*}}}*/
 		doubletype Max(void){_assert_(this);/*{{{*/
+      CoDiPauseDumpTape();
 
+			EchoDebug("Max");
 			doubletype max=0;
 
 			if(type==PetscVecType){
@@ -348,12 +411,18 @@ class Vector{
 				#endif
 			}
 			else _error_("operation not supported yet");
-			return max;
+
+			ArrayDebugOutput("max out", 1, &max);
+      CoDiResumeDumpTape();
+      return max;
 		}
 		/*}}}*/
 		doubletype Norm(NormMode norm_type){_assert_(this);/*{{{*/
+      CoDiPauseDumpTape();
 
 			doubletype norm=0;
+
+			EchoDebug("Norm");
 
 			if(type==PetscVecType){
 				#ifdef _HAVE_PETSC_
@@ -361,21 +430,33 @@ class Vector{
 				#endif
 			}
 			else norm=this->ivector->Norm(norm_type);
+
+			ArrayDebugOutput("norm out", 1, &norm);
+      CoDiResumeDumpTape();
 			return norm;
 		}
 		/*}}}*/
 		void Scale(doubletype scale_factor){_assert_(this);/*{{{*/
+      CoDiPauseDumpTape();
 
+			ArrayDebugOutput("scale s in", 1, &scale_factor);
+			EchoDebug("Scale in");
 			if(type==PetscVecType){
 				#ifdef _HAVE_PETSC_
 				this->pvector->Scale(scale_factor);
 				#endif
 			}
 			else this->ivector->Scale(scale_factor);
+
+			EchoDebug("Scale out");
+      CoDiResumeDumpTape();
 		}
 		/*}}}*/
 		doubletype Dot(Vector* vector){_assert_(this);/*{{{*/
+      CoDiPauseDumpTape();
 
+			EchoDebug("Dot 1");
+			vector->EchoDebug("Dot 2");
 			doubletype dot;
 
 			if(type==PetscVecType){
@@ -384,48 +465,70 @@ class Vector{
 				#endif
 			}
 			else dot=this->ivector->Dot(vector->ivector);
+			ArrayDebugOutput("dot out", 1, &dot);
+      CoDiResumeDumpTape();
 			return dot;
 		}
 		/*}}}*/
 		void PointwiseDivide(Vector* x,Vector* y){_assert_(this);/*{{{*/
+      CoDiPauseDumpTape();
 
+			x->EchoDebug("PointwiseDevide x");
+			y->EchoDebug("PointwiseDevide y");
 			if(type==PetscVecType){
 				#ifdef _HAVE_PETSC_
 				this->pvector->PointwiseDivide(x->pvector,y->pvector);
 				#endif
 			}
 			else this->ivector->PointwiseDivide(x->ivector,y->ivector);
+			EchoDebug("PointwiseDevide r");
+      CoDiResumeDumpTape();
 		}
 		/*}}}*/
 		void PointwiseMult(Vector* x,Vector* y){_assert_(this);/*{{{*/
+      CoDiPauseDumpTape();
 
+			x->EchoDebug("PointwiseMult x");
+			y->EchoDebug("PointwiseMult y");
 			if(type==PetscVecType){
 				#ifdef _HAVE_PETSC_
 				this->pvector->PointwiseMult(x->pvector,y->pvector);
 				#endif
 			}
 			else this->ivector->PointwiseMult(x->ivector,y->ivector);
+			EchoDebug("PointwiseMult r");
+      CoDiResumeDumpTape();
 		}
 		/*}}}*/
 		void Pow(doubletype scale_factor){_assert_(this);/*{{{*/
+      CoDiPauseDumpTape();
 
+			ArrayDebugOutput("pow s in", 1, &scale_factor);
+			EchoDebug("pow in");
 			if(type==PetscVecType){
 				#ifdef _HAVE_PETSC_
 				this->pvector->Pow(scale_factor);
 				#endif
 			}
 			else this->ivector->Pow(scale_factor);
+			EchoDebug("pow out");
+      CoDiResumeDumpTape();
 		}
 		/*}}}*/
 void Sum(doubletype* pvalue){ /*{{{*/
+  CoDiPauseDumpTape();
 	_assert_(this);/*{{{*/
 
+	EchoDebug("sum");
 	if(type==PetscVecType){
 		#ifdef _HAVE_PETSC_
 		this->pvector->Sum(pvalue);
 		#endif
 	}
 	else this->ivector->Sum(pvalue);
+
+	ArrayDebugOutput("sum out", 1, pvalue);
+  CoDiResumeDumpTape();
 }
 /*}}}*/
 }; /*}}}*/

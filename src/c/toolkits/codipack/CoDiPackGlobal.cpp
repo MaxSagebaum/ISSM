@@ -2,6 +2,7 @@
  * \brief: implementation specific details for the CoDiPack AD tool.
  */
 
+#include "CoDiPackDebug.h"
 #include "CoDiPackGlobal.h"
 
 #if defined(_HAVE_CODIPACK_)
@@ -116,7 +117,9 @@ void CoDi_global::setFullGradient(double const * vec, size_t size) {
 
 void CoDi_global::evaluate() {
 	evaluateStart();
+  CoDiStartDumpEval();
 	CoDiReal::getTape().evaluate();
+  CoDiStopDumpEval();
 	evaluateEnd();
 
 	outputTimeAndMem();
@@ -130,9 +133,11 @@ void CoDi_global::recordStart() {
 	if (has_time_output || has_memory_output) {
 		run_count += 1;
 	}
+  CoDiStartDumpTape();
 }
 
 void CoDi_global::recordEnd() {
+  CoDiStopDumpTape();
 	if (has_time_output)  {
 		record_end = std::chrono::system_clock::now();
 	}

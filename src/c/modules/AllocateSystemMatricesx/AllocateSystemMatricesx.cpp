@@ -53,10 +53,13 @@ void AllocateSystemMatricesx(Matrix<IssmDouble>** pKff,Matrix<IssmDouble>** pKfs
 				Kff=new Matrix<IssmDouble>(m,n,M,N,NULL,NULL);
 			}
 			else{
+				bool d = CoDiDisableDebugOutput();
 				MatrixNonzeros(&d_nnz,&o_nnz,femmodel,FsetEnum,FsetEnum);
 				Kff=new Matrix<IssmDouble>(m,n,M,N,d_nnz,o_nnz);
 				xDelete<int>(d_nnz);
 				xDelete<int>(o_nnz);
+
+				CoDiEnableDebugOutput(d);
 			}
 		}
 		if(pKfs){
@@ -66,10 +69,12 @@ void AllocateSystemMatricesx(Matrix<IssmDouble>** pKff,Matrix<IssmDouble>** pKfs
 				Kfs=new Matrix<IssmDouble>(m,n,M,N,NULL,NULL);
 			}
 			else{
+				bool d = CoDiDisableDebugOutput();
 				MatrixNonzeros(&d_nnz,&o_nnz,femmodel,FsetEnum,SsetEnum);
 				Kfs=new Matrix<IssmDouble>(m,n,M,N,d_nnz,o_nnz);
 				xDelete<int>(d_nnz);
 				xDelete<int>(o_nnz);
+				CoDiEnableDebugOutput(d);
 			}
 		}
 		if(pdf) df =new Vector<IssmDouble>(flocalsize,fsize);
