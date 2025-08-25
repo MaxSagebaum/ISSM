@@ -52,11 +52,15 @@ int CoDiGetUniqueID() {
 void writeId(Identifier id) {
   if(debugSettings.outputId) {
     if(debugSettings.idFormatLong) {
+#if CODIPACK_TAG
+      (*debugSettings.stream) << "(" << id.tag << ")";
+#else
       (*debugSettings.stream) << "(" << id << ")";
+#endif
     }
     else {
       char id_str = 'a';
-      if(0 == id) {
+      if(CoDiReal::getTape().isIdentifierActive(id)) {
         id_str = 'p';
       }
       (*debugSettings.stream) << "(" << id_str << ")";
@@ -198,17 +202,6 @@ bool CoDiDisableDebugOutput() {
 	return cur;
 }
 
-struct MatMatrixEntry {
-	int row;
-	int col;
-	double value;
-	int id;
-};
-
-inline bool operator<(MatMatrixEntry const& a, MatMatrixEntry const& b) {
-	return a.row < b.row || (a.row == b.row && a.col < b.col);
-}
-
 struct MatDataEntry {
 		int row;
 		int col;
@@ -233,7 +226,7 @@ struct Data_MatDebugOutputReverse {
 
 		Data_MatDebugOutputReverse(int M, int N, std::string message, int id) : M(M), N(N), entries(), message(message), id(id) {}
 
-		void addEntries(Identifier row, int size, Identifier* cols, CoDiReal* values) {
+		void addEntries(int row, int size, int* cols, CoDiReal* values) {
 			size_t start = entries.size();
 			for(int i = 0; i < size; i += 1) {
 				entries.push_back(MatDataEntry(row, cols[i], values[i].getIdentifier()));

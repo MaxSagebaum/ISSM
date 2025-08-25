@@ -9,6 +9,10 @@
 
 #if defined(_HAVE_CODIPACK_)
 
+#ifndef CODIPACK_TAG
+#define CODIPACK_TAG 0
+#endif
+
 #include <iostream>
 #include <vector>
 #include <sstream>
@@ -27,8 +31,8 @@ struct CoDi_global {
 
 		using time_point = typename std::chrono::system_clock::time_point;
 
-		std::vector<int> input_indices;
-		std::vector<int> output_indices;
+		std::vector<Identifier> input_indices;
+		std::vector<Identifier> output_indices;
 
 		bool has_time_output;
 		bool has_memory_output;
@@ -44,6 +48,10 @@ struct CoDi_global {
 		time_point evaluate_end;
 
 		int run_count;
+
+#if CODIPACK_TAG
+		int tag_count;
+#endif
 
 		// Misc functions.
 

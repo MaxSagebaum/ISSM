@@ -8,9 +8,11 @@
 
 #include "../../classes/Params/Parameters.h"
 #include "../../shared/Exceptions/exceptions.h"
+#include "../mpi/issmmpi.h"
 
 void CoDi_global::init(Parameters* parameters) {
 	run_count = 0;
+	tag_count = 0;
 
 	parameters->FindParam(&has_time_output, AutodiffOutputTimeEnum);
 	parameters->FindParam(&has_memory_output, AutodiffOutputTapeMemoryEnum);
@@ -35,11 +37,19 @@ void CoDi_global::print(std::ostream& out) const {
 		CoDiReal::getTape().printStatistics(std::cout);
 		out << "-------------------------------------\nCoDi_global:\n  in = [ ";
 		for(auto& in_index : input_indices) {
+#if CODIPACK_TAG
+				out << in_index.tag << " ";
+#else
 				out << in_index << " ";
+#endif
 		}
 		out << "]\n  out = [ ";
 		for(auto& out_index : output_indices) {
+#if CODIPACK_TAG
+				out << out_index.tag << " ";
+#else
 				out << out_index << " ";
+#endif
 		}
 		out << "]\n-------------------------------------\n";
 }
@@ -57,6 +67,18 @@ void CoDi_global::registerOutput(CoDiReal& value) {
 void CoDi_global::start() {
 	clear();
 	// TODO: Maybe add preallocation of tape.
+
+#if CODIPACK_TAG
+  int bits = sizeof(char) * 8;
+  int max_tag = 1 << bits;
+  int rank = IssmComm::GetRank();
+  tag_count = tag_count % max_tag;
+	tag_count += 1;
+
+  int tag = (tag_count) + (rank << bits);
+	CoDiReal::getTape().setCurTag(tag);
+#endif
+
 	CoDiReal::getTape().setActive();
 
 	recordStart();

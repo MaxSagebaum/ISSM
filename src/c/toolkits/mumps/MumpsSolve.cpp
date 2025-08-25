@@ -533,7 +533,7 @@ void MumpsSolve_codi_b(Tape* tape, void* data_in, AccessInterface* ra) {/*{{{*/
   for(int i=0; i<local_nnz; ++i) {
     // we access the transposed matrix here because we stored the indices in a transposed way
     // -1 is substracted because jcn and irn are stored with fortran indexing
-    if(indexATrans[i] != 0) {
+    if(tape->isIdentifierActive(indexATrans[i])) {
       updateAdjoint(*tape, indexATrans[i], -adjX[jcnATrans[i]-1]*valueX[irnATrans[i]-1]);
     }
   }
